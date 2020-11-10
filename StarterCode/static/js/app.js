@@ -21,18 +21,29 @@ function init() {
         buildMetadata(initSample);
 
     });
-
-
-
-
-    // call buildCharts
-    // call buildMetadata
 }
 
 function buildMetadata(data) {
 
     // filter the data for results, store in array, access object items
+    d3.json("samples.json").then((data) => {
+        var metadata = data.metadata;
+        // filter for target search sample
+        var resultsArray = metadata.filter(sampleObject => sampleObject.id == sample);
+        var results = resultsArray[0];
 
+        // D3 select to target the panel
+        var targetPanel = d3.select("#sample-metadata");
+
+        // clear potential previous metadata
+        targetPanel.html("");
+
+        // Display key and value pairs
+        Object.entries(results).forEach(([key, value]) => {
+            targetPanel.append("h6").text(`${key.toUpperCase()}: ${value}`);
+        });
+
+    });
 }
 
 function buildCharts(data) {
