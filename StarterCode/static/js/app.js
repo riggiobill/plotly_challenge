@@ -23,7 +23,7 @@ function init() {
     });
 }
 
-function buildMetadata(data) {
+function buildMetadata(sample) {
 
     // filter the data for results, store in array, access object items
     d3.json("samples.json").then((data) => {
@@ -46,27 +46,132 @@ function buildMetadata(data) {
     });
 }
 
-function buildCharts(data) {
+function buildCharts(sample) {
     
     // D3 json to select the sample data
+    d3.json("samples.json").then((data) => {
+        var dataSamples = data.samples;
+        var resultsArray = dataSamples.filter(sampleObj => sampleObj.id == sample);
+        var results = resultsArray[0];
+
+        var otu_ids = results.otu_ids;
+        var otu_labels = results.otu_labels;
+        var sample_values = results.sample_values;
+
+    
 
     // build bar chart
+    var yTicks = otu_ids.slice(0,10).map(otuID => `OTU ${otuID}`).reverse();
+
+    var barChartData = [{
+        y: yTicks,
+        x: sample_values.slice(0,10).reverse(),
+        text: otu_labels.slice(0,10).reverse(),
+        type: "bar",
+        orientation: "h"
+    }];
+
+    var barChartLayout = {
+        title: "Top 10 OTUs Present",
+        margin: {t: 30, l: 150}
+    };
+
+
+
 
     // plotly call
 
+    Plotly.newPlot("bar", barChartData, barChartLayout);
+
+    
 
 
     // build bubble chart
 
-    // plotly call
+    var bubbleChartData = [{
+        x: otu_ids,
+        y: sample_values,
+        text: otu_labels,
+        mode: 'markers',
+        marker: {
+            size: sample_values,
+            color: otu_ids,
+            colorscale: "Earth"
+        }
+    }];
 
+    var bubbleChartLayout = {
+        title: {
+            text: `OTU Species Results (Sample ${sample})`,
+            font: {
+              family: 'Courier New, monospace',
+              size: 18,
+              color: '#000000',
+            },
+          }, 
+          paper_bgcolor:'rgba(0,0,0,0)',
+          plot_bgcolor:'rgba(0,0,0,0)',
+          xaxis: {
+            title: {
+              text: `OTU ID`,
+              font: {
+                family: 'Courier New, monospace',
+                size: 16,
+                color: '#000000',
+              },
+            },
+            showgrid: true,
+            zeroline: true,
+            showline: true,
+            mirror: 'ticks',
+            tickcolor: '#000000',
+            tickfont: {
+              size: 14,
+              color: 'rgba(0,0,0,1)'
+            },
+            gridcolor: '#343a40',
+            gridwidth: 1,
+            linecolor: '#636363',
+            linewidth: 6
+          },
+          yaxis: {
+            title: {
+              text: `Amount`,
+              font: {
+                family: 'Courier New, monospace',
+                size: 16,
+                color: '#000000',
+              },
+            },  
+            mirror: 'ticks',
+            tickcolor: '#000000',
+            tickfont: {
+              size: 14,
+              color: 'rgba(0,0,0,1)'
+            },
+            zerolinecolor: '#000000',
+            zerolinewidth: 2,
+            gridcolor: '#343a40',
+            gridwidth: 1,
+            linecolor: '#636363',
+            linewidth: 6
+          },
+          showlegend: true,
+          height: 600,
+          width: 1100
+    };
+
+    // plotly call
+    Plotly.newPlot("bubble", bubbleChartData, bubbleChartLayout);
+
+    });
 }
 
 function optionChanged(newData) {
     // select and fetch new data when new option is selected
 
     buildCharts(newData);
-    buildCharts(newData);
+    buildMetadata(newData);
 
 }
 
